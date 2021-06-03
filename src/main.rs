@@ -1,60 +1,78 @@
 extern crate image;
 extern crate num;
 
+use core::f32;
 use image::png::PNGEncoder;
 use image::ColorType;
+use image::{ImageBuffer, Pixel, Rgb, Rgba, RgbaImage};
 use num::ToPrimitive;
 use rgb::*;
-use core::f32;
 use std::fs::File;
 use std::io::Write;
+use std::time::{Duration, Instant};
+use std::u32;
 use std::usize;
-
-
-struct Image{
-  width: usize,
-  height:usize
+struct Image {
+    width: usize,
+    height: usize,
 }
 fn main() {
-    println!("Hello, world!");
-
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() != 1 {
-        writeln!(std::io::stderr(), "You need to give us a color").unwrap();
-        std::process::exit(1)
+    let time = Instant::now();
+    println!("Generating please wait!");
+    for poss in 0..=100 {
+        for darken in 0..100 {
+            let baseColor = Rgb([255, 255, 255]);
+            let reset: u8 = poss;
+            ///minimal 0.5
+            let darken: f32 = 0.2+darken as f32;
+            let image = Image {
+                width: 200,
+                height: 200,
+            };
+            let mut img =
+                ImageBuffer::<Rgb<u8>, Vec<u8>>::new(image.width as u32, image.height as u32);
+            render(&mut img, baseColor, reset, darken);
+            img.save(format!("output-reset:{}-Darken:{}.png", poss,darken)).unwrap();
+        }
     }
-    let baseColor = RGB8 {
-        r: 0,
-        g: 100,
-        b: 255,
-    };
-    let reset = 3;
-    ///minimal 0.5
-    let darken = 0.5;
-    let image = Image{width:200,height:200};
-    let mut pixels = vec![0;image.width*image.height];
-    render(&mut pixels, &image,reset,darken);
-    write_image(&pixels,&image).expect("Error has occurd while saving the file");
+
+    println!("Finished in {}seconds", time.elapsed().as_secs())
 }
 
-fn render(pixels:&mut [u8],image:&Image,reset:u16,darkenfactor:f32){
-  let mut it:u16 = 0;
-  for row in 0..image.width{
-    for colluumn in 0..image.height{
-      it += 1;
-      if it == reset {
-        it = 0
-      }
-
-      pixels[row*image.height+colluumn] = (it as f32 * darkenfactor) as u8;
+fn render(
+    image: &mut ImageBuffer<Rgb<u8>, Vec<u8>>,
+    baseColor: Rgb<u8>,
+    reset: u8,
+    darkenfactor: f32,
+) {
+    let mut iter = 0;
+    for x in 0..image.width() {
+        for y in 0..image.height() {
+            iter += 1;
+            if iter as u8 == reset {
+                iter = 0
+            }
+            println!("Calculating pixel {} {}", x, y);
+            image.put_pixel(
+                x,
+                y,
+                calculate_rgb_value(baseColor, iter, reset, darkenfactor),
+            )
+        }
     }
-  }
 }
 
-fn write_image(pixels:&[u8],image:&Image) -> Result<(),std::io::Error>{
-  let file = File::create("Collorpattern.png")?;
-  let enc:PNGEncoder<File> = PNGEncoder::new(file);
-  enc.encode(pixels, image.width.to_u32().unwrap(), image.height.to_u32().unwrap(), ColorType::Gray(4))?;
+fn calculate_rgb_value(
+    baseColor: Rgb<u8>,
+    iteration: u32,
+    reset: u8,
+    darkenfactor: f32,
+) -> Rgb<u8> {
+    let mut color = baseColor.clone();
 
-  Ok(())
+    if iteration == 0 {
+        return color;
+    }
+    color = baseColor.map(|color| (color as f32 * darkenfactor) as u8);
+    color
 }

@@ -24,7 +24,7 @@ fn main() {
             let baseColor = Rgb([255, 255, 255]);
             let reset: u8 = poss;
             ///minimal 0.5
-            let darken: f32 = 0.2+darken as f32;
+            let darken: f32 = 1 as f32 / darken as f32 / 5.5 ;
             let image = Image {
                 width: 200,
                 height: 200,

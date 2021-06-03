@@ -28,8 +28,9 @@ fn main() {
         g: 100,
         b: 255,
     };
-    let reset = 10;
-    let darken = 1.5;
+    let reset = 3;
+    ///minimal 0.5
+    let darken = 0.5;
     let image = Image{width:200,height:200};
     let mut pixels = vec![0;image.width*image.height];
     render(&mut pixels, &image,reset,darken);

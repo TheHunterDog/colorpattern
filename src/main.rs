@@ -53,7 +53,7 @@ fn render(pixels:&mut [u8],image:&Image,reset:u16,darkenfactor:f32){
 fn write_image(pixels:&[u8],image:&Image) -> Result<(),std::io::Error>{
   let file = File::create("Collorpattern.png")?;
   let enc:PNGEncoder<File> = PNGEncoder::new(file);
-  enc.encode(pixels, image.width.to_u32().unwrap(), image.height.to_u32().unwrap(), ColorType::RGB(123))?;
+  enc.encode(pixels, image.width.to_u32().unwrap(), image.height.to_u32().unwrap(), ColorType::Gray(4))?;
 
   Ok(())
 }

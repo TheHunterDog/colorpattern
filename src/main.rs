@@ -24,7 +24,7 @@ fn main() {
             let baseColor = Rgb([255, 255, 255]);
             let reset: u8 = poss;
             ///minimal 0.5
-            let darken: f32 = 1 as f32 / darken as f32 / 5.5 ;
+            let darken: f32 = 1 as f32 / darken as f32 / 5.5;
             let image = Image {
                 width: 200,
                 height: 200,
@@ -32,7 +32,8 @@ fn main() {
             let mut img =
                 ImageBuffer::<Rgb<u8>, Vec<u8>>::new(image.width as u32, image.height as u32);
             render(&mut img, baseColor, reset, darken);
-            img.save(format!("output-reset:{}-Darken:{}.png", poss,darken)).unwrap();
+            img.save(format!("output-reset:{}-Darken:{}.png", poss, darken))
+                .unwrap();
         }
     }
 
@@ -56,7 +57,7 @@ fn render(
             image.put_pixel(
                 x,
                 y,
-                calculate_rgb_value(baseColor, iter, reset, darkenfactor),
+                calculate_rgb_value(baseColor, iter, reset, darkenfactor, x, y),
             )
         }
     }
@@ -67,12 +68,18 @@ fn calculate_rgb_value(
     iteration: u32,
     reset: u8,
     darkenfactor: f32,
+    x: u32,
+    y: u32,
 ) -> Rgb<u8> {
     let mut color = baseColor.clone();
 
     if iteration == 0 {
         return color;
     }
-    color = baseColor.map(|color| (color as f32 * darkenfactor) as u8);
+    // if  x == reset as u32 || y == reset as u32 {
+      color.data = [y as u8,(x * y / 240) as u8,x as u8];
+    // } else {
+    //     color = baseColor.map(|color| (color as f32 * darkenfactor) as u8);
+    // }
     color
 }
